@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  snapmsg_test_db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: brandon123
+      POSTGRES_DB: snapmsg_test_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - snapmsg-network
+
+  app:
+    build: .
+    env_file:
+      - .env.testing
+    depends_on:
+      - snapmsg_test_db
+    ports:
+      - "8000:8000"
+    networks:
+      - snapmsg-network
+
+  test_runner:
+    build: .
+    env_file:
+      - .env.testing
+    depends_on:
+      - snapmsg_test_db
+    command: ["pytest", "Tests/test_endpoints.py"]
+    networks:
+      - snapmsg-network
+
+networks:
+  snapmsg-network:
+
+volumes:
+  postgres_test_data:
