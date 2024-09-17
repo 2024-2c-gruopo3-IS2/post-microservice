@@ -2,8 +2,8 @@ from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .config import logger
-from .schemas import ErrorResponse
+from config import logger
+from schemas import ErrorResponse
 
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
@@ -49,7 +49,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 detail=http_exc.detail or "An error occurred.",
                 instance=str(request.url),
             )
-            return JSONResponse(status_code=http_exc.status_code, content=error_response.model_dump())
+            return JSONResponse(status_code=http_exc.status_code, content=error_response.dict())
         except Exception as exc:
             error_response = ErrorResponse(
                 type="about:blank",
@@ -59,5 +59,5 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 instance=str(request.url),
             )
             logger.error(f"Unhandled exception: {exc}")
-            return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=error_response.model_dump())
+            return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=error_response.dict())
 

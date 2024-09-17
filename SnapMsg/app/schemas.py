@@ -20,7 +20,7 @@ class SnapData(BaseModel):
         id (UUID): The unique identifier of the Snap.
         message (str): The content of the Snap.
     """
-    id: UUID
+    id: str
     message: str
 
 class SnapResponse(BaseModel):
@@ -68,7 +68,7 @@ class SnapUpdate(BaseModel):
         tags (Optional[List[str]]): The new tags for the Snap.
     """
     message: Optional[str] = None
-    tags: Optional[List[str]] = None
+    privacy: Optional[bool] = None
 
 
 

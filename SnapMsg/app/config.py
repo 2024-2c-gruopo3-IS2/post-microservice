@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 if ENVIRONMENT == "development":
-    load_dotenv(dotenv_path=".env.development")
+    load_dotenv()
 else:
     load_dotenv(dotenv_path=".env.testing")
     
