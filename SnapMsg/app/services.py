@@ -23,11 +23,11 @@ class SnapService:
             return response.json().get("email")
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    def create_snap(self, db: Database, token: str, message: str, privacy: str):
+    def create_snap(self, db: Database, token: str, message: str, is_private: str):
         
         email = self.get_user_email_from_token(token)
 
-        return self.snap_repository.create_snap(email, message, privacy)
+        return self.snap_repository.create_snap(email, message, is_private)
 
     def get_snaps(self, db: Database, token: str):
         

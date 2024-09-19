@@ -10,7 +10,7 @@ class SnapCreate(BaseModel):
         message (str): The content of the Snap.
     """
     message: str
-    privacy: bool
+    is_private: bool
 
 class SnapData(BaseModel):
     """
@@ -68,7 +68,7 @@ class SnapUpdate(BaseModel):
         tags (Optional[List[str]]): The new tags for the Snap.
     """
     message: Optional[str] = None
-    privacy: Optional[bool] = None
+    is_private: Optional[bool] = None
 
 
 

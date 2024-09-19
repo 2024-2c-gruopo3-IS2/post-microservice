@@ -7,12 +7,12 @@ class SnapRepository:
     def __init__(self, db):
         self.snaps_collection = db["twitsnaps"]
 
-    def create_snap(self, email, message, privacy):
+    def create_snap(self, email, message, is_private):
         new_snap = {
             "email": email,
             "message": message,
             "created_at": datetime.datetime.now(),
-            "privacy": privacy,
+            "is_private": is_private,
         }
         result = self.snaps_collection.insert_one(new_snap)
         return str(result.inserted_id)
@@ -40,5 +40,5 @@ class SnapRepository:
         return list(self.snaps_collection.find({"user_id": user_id}))
 
     def get_public_snaps(self):
-        return list(self.snaps_collection.find({"privacy": "public"}))
+        return list(self.snaps_collection.find({"is_private": "public"}))
 

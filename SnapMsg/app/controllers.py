@@ -27,8 +27,8 @@ def create_snap(token: str, snap: SnapCreate, db: Session = Depends(get_db)):
     if len(snap.message) > MAX_MESSAGE_LENGTH:
         raise HTTPException(status_code=400, detail="Message exceeds 280 characters.")
     
-    snap_id = snap_service.create_snap(db, token, snap.message, snap.privacy)
-    return {"data":{ "id": snap_id, "message": snap.message, "privacy": snap.privacy}}
+    snap_id = snap_service.create_snap(db, token, snap.message, snap.is_private)
+    return {"data":{ "id": snap_id, "message": snap.message, "is_private": snap.is_private}}
 
 
 @snap_router.put("/{snap_id}", response_model=SnapResponse)
@@ -39,7 +39,7 @@ def update_snap(token: str, snap_id: str, snap_update: SnapUpdate, db: Session =
 
     snap_service.update_snap(db, token, snap_id, snap_update)
 
-    return {"data": {"id": snap_id, "message": snap_update.message, "privacy": snap_update.privacy}}
+    return {"data": {"id": snap_id, "message": snap_update.message, "is_private": snap_update.is_private}}
 
 
 @snap_router.delete("/{snap_id}")
