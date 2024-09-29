@@ -41,7 +41,7 @@ jobs:
     - name: Generate Coverage Report
       run: |
         cd SnapMsg 
-        coverage report -m
+        coverage report --omit=/usr/lib/python3/*,*/site-packages/*
 
     - name: Fail if coverage is below 75%
       run: |
