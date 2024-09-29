@@ -35,7 +35,7 @@ jobs:
     - name: Run tests with coverage
       run: |
         export ENVIRONMENT="test"
-        coverage run -m pytest tests/
+        coverage run -m pytest SnapMsg/Tests/
 
     - name: Generate Coverage Report
       run: coverage report -m
