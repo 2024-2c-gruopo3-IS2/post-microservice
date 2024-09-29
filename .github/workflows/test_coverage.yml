@@ -39,7 +39,9 @@ jobs:
         coverage run -m pytest Tests/
 
     - name: Generate Coverage Report
-      run: coverage report -m
+      run: |
+        cd SnapMsg 
+        coverage report -m
 
     - name: Fail if coverage is below 75%
       run: |
