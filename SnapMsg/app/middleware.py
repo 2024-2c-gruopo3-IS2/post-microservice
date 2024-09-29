@@ -2,8 +2,8 @@ from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from config import logger
-from schemas import ErrorResponse
+from .config import logger
+from .schemas import ErrorResponse
 
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):

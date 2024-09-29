@@ -1,6 +1,6 @@
 import datetime
 from bson import ObjectId
-from config import logger
+from .config import logger
 
 
 class SnapRepository:

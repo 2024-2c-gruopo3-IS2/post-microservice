@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
-from middleware import ErrorHandlingMiddleware
-from config import logger
-from controllers import snap_router
+from .middleware import ErrorHandlingMiddleware
+from .config import logger
+from .controllers import snap_router
 
 app = FastAPI()
 app.add_middleware(ErrorHandlingMiddleware)

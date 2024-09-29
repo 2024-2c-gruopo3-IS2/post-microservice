@@ -1,0 +1,15 @@
+services:
+  mongodb-test:
+    image: mongo:latest
+    container_name: mongodb_test
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - ENVIRONMENT=test
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_test_data:/data/db
+
+volumes:
+  mongo_test_data:

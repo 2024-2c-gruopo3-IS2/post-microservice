@@ -1,0 +1,50 @@
+name: Test Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Set up Docker Compose
+      run: sudo apt-get update && sudo apt-get install docker-compose -y
+
+    - name: Start services with docker-compose
+      run: docker-compose up --build -d 
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Run tests with coverage
+      run: |
+        export ENVIRONMENT="test"
+        coverage run -m pytest tests/
+
+    - name: Generate Coverage Report
+      run: coverage report -m
+
+    - name: Fail if coverage is below 75%
+      run: |
+        COVERAGE_THRESHOLD="75"
+        LAST_COVERAGE=$(coverage report -m | grep -oP '\d+%' | tail -n 1 | tr -d '%')
+        if [[ "$LAST_COVERAGE" -lt "$COVERAGE_THRESHOLD" ]]; then
+          echo "Code coverage is less than $COVERAGE_THRESHOLD%"
+          exit 1
+        fi
