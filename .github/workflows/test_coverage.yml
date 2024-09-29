@@ -45,9 +45,11 @@ jobs:
 
     - name: Fail if coverage is below 75%
       run: |
-        COVERAGE_THRESHOLD="75"
-        LAST_COVERAGE=$(coverage report -m | grep -oP '\d+%' | tail -n 1 | tr -d '%')
-        if [[ "$LAST_COVERAGE" -lt "$COVERAGE_THRESHOLD" ]]; then
+        COVERAGE_THRESHOLD=75
+        LAST_COVERAGE=$(coverage report --omit=/usr/lib/python3/*,*/site-packages/* | grep -oP '\d+(?=%)' | tail -n 1)
+        if [ "$LAST_COVERAGE" -lt "$COVERAGE_THRESHOLD" ]; then
           echo "Code coverage is less than $COVERAGE_THRESHOLD%"
           exit 1
+        else
+          echo "Code coverage is $LAST_COVERAGE%, which is above the threshold."
         fi
