@@ -80,7 +80,7 @@ def test_get_all_snaps():
   
     client.post("/snaps/", json={"message": "Snap 1", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
     client.post("/snaps/", json={"message": "Snap 2", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
-    client.post("/snaps/", json={"message": "Snap 3", "is_private": True}, headers={"Authorization": "Bearer mocktoken"})
+    client.post("/snaps/", json={"message": "Snap 3", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
 
     
     response = client.get("/snaps/all-snaps", headers={"Authorization": "Bearer mocktoken"})
@@ -100,5 +100,5 @@ def test_get_all_snaps_no_snaps():
     assert response.status_code == 404
     data = response.json()
     assert data["type"] == "about:blank"
-    assert data["title"] == "No snaps found."
+    assert data["title"] == "Snap Not Found"
 

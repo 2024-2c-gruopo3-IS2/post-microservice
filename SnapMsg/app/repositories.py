@@ -48,6 +48,6 @@ class SnapRepository:
         """
         snaps = list(self.snaps_collection.find().sort("created_at", -1))
         for snap in snaps:
-            snap["_id"] = str(snap["_id"])
+            snap["id"] = str(snap["_id"])
         return snaps
 
