@@ -66,7 +66,6 @@ def get_snaps(user_email: callable = Depends(get_user_from_token), db: Session =
 @snap_router.get(
     "/all-snaps",
     summary="Fetch all TwitSnaps",
-    response_model=SnapListResponse,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_404_NOT_FOUND: {"model": ErrorResponse},
