@@ -41,4 +41,13 @@ class SnapRepository:
 
     def get_public_snaps(self):
         return list(self.snaps_collection.find({"is_private": "public"}))
+    
+    def get_all_snaps(self):
+        """
+        Fetch all public and private snaps from the database.
+        """
+        snaps = list(self.snaps_collection.find().sort("created_at", -1))
+        for snap in snaps:
+            snap["_id"] = str(snap["_id"])
+        return snaps
 

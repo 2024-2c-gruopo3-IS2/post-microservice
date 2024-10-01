@@ -62,3 +62,20 @@ def get_snaps(user_email: callable = Depends(get_user_from_token), db: Session =
     snaps = snap_service.get_snaps(db, user_email)
 
     return {"data": snaps}
+
+@snap_router.get(
+    "/all-snaps",
+    summary="Fetch all TwitSnaps",
+    response_model=SnapListResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": ErrorResponse},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
+    }
+)
+def get_all_snaps(db: Session = Depends(get_db)):
+    """
+    Fetch all public and private TwitSnaps.
+    """
+    snaps = snap_service.get_all_snaps(db)
+    return {"data": snaps}

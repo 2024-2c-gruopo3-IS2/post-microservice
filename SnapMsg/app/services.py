@@ -46,4 +46,13 @@ class SnapService:
             raise HTTPException(status_code=403, detail="Not authorized to update this snap.")
         
         return self.snap_repository.update_snap(snap_id, snap_update)
+    
+    def get_all_snaps(self, db: Database):
+        """
+        Fetch all snaps from the database.
+        """
+        snaps = self.snap_repository.get_all_snaps()
+        if not snaps:
+            raise HTTPException(status_code=404, detail="No snaps found.")
+        return snaps
 

@@ -10,10 +10,10 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 if ENVIRONMENT == "development":
     db_url = os.getenv("DB_URI")
+    client = MongoClient(db_url, server_api=ServerApi('1'), tlsCAFile=certifi.where())
 else:
     db_url = "mongodb://mongoadmin:secret@localhost:27017"
-
-client = MongoClient(db_url, server_api=ServerApi('1'))
+    client = MongoClient(db_url, server_api=ServerApi('1'))
 
 db = client['twitsnaps']
 
