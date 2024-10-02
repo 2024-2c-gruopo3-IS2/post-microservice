@@ -8,6 +8,7 @@ class SnapCreate(BaseModel):
     
     Attributes:
         message (str): The content of the Snap.
+        is_private (bool): Whether the Snap is private or not.
     """
     message: str
     is_private: bool
@@ -19,9 +20,13 @@ class SnapData(BaseModel):
     Attributes:
         id (UUID): The unique identifier of the Snap.
         message (str): The content of the Snap.
+        is_private (bool): Whether the Snap is private or not.
+        hashtags (List[str]): The list of hashtags in the Snap.
     """
     id: str
     message: str
+    is_private: bool
+    hashtags: List[str]
 
 class SnapResponse(BaseModel):
     """
@@ -65,10 +70,12 @@ class SnapUpdate(BaseModel):
     
     Attributes:
         message (Optional[str]): The new content of the Snap.
-        tags (Optional[List[str]]): The new tags for the Snap.
+        is_private (Optional[bool]): Whether the Snap is private or not.
+        hashtags (Optional[List[str]]): The new list of hashtags in the Snap.
     """
     message: Optional[str] = None
     is_private: Optional[bool] = None
+    hashtags: Optional[List[str]] = None
 
 
 

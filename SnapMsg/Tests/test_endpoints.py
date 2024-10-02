@@ -102,3 +102,52 @@ def test_get_all_snaps_no_snaps():
     assert data["type"] == "about:blank"
     assert data["title"] == "Snap Not Found"
 
+
+def test_create_snap_with_hashtags():
+    data = {"message": "Hello World! #test #snap", "is_private": False}
+
+    response = client.post("/snaps/", json=data, headers={"Authorization": "Bearer mocktoken"})
+    assert response.status_code == 201
+    response_data = response.json()["data"]
+    assert response_data["message"] == "Hello World!"
+    assert response_data["hashtags"] == ["#test", "#snap"]
+
+
+def test_update_snap_with_hashtags():
+   
+    response = client.post("/snaps/", json={"message": "Initial Message", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
+    snap_id = response.json()["data"]["id"]
+
+    updated_data = {"message": "Updated Message #updated", "is_private": False}
+    response = client.put(f"/snaps/{snap_id}", json=updated_data, headers={"Authorization": "Bearer mocktoken"})
+    
+    assert response.status_code == 200
+    response_data = response.json()["data"]
+    assert response_data["message"] == "Updated Message"
+    assert response_data["hashtags"] == ["#updated"]
+
+
+def test_search_snaps_by_hashtag():
+    
+    client.post("/snaps/", json={"message": "Snap with #fun", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
+    client.post("/snaps/", json={"message": "Another snap with #fun", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
+    client.post("/snaps/", json={"message": "Snap with #serious", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
+
+    
+    response = client.get("/snaps/by-hashtag?hashtag=#fun", headers={"Authorization": "Bearer mocktoken"})
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert len(data) == 2
+    assert data[0]["message"] == "Another snap with #fun"
+    assert data[1]["message"] == "Snap with #fun"
+
+
+def test_search_snaps_by_non_existing_hashtag():
+    
+    response = client.get("/snaps/by-hashtag?hashtag=#nonexistent", headers={"Authorization": "Bearer mocktoken"})
+    assert response.status_code == 404
+    data = response.json()
+    assert data["type"] == "about:blank"
+    assert data["title"] == "Snap Not Found"
+
+    

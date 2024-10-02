@@ -28,8 +28,8 @@ def create_snap(snap: SnapCreate, user_email: callable = Depends(get_user_from_t
     if len(snap.message) > MAX_MESSAGE_LENGTH:
         raise HTTPException(status_code=400, detail="Message exceeds 280 characters.")
     
-    snap_id = snap_service.create_snap(db, user_email, snap.message, snap.is_private)
-    return {"data":{ "id": snap_id, "message": snap.message, "is_private": snap.is_private}}
+    snap_created = snap_service.create_snap(db, user_email, snap.message, snap.is_private)
+    return {"data":{ "id": snap_created["_id"], "message": snap_created["message"], "is_private": snap_created["is_private"], "hashtags": snap_created["hashtags"]}}
 
 
 @snap_router.put("/{snap_id}", response_model=SnapResponse)
@@ -40,7 +40,7 @@ def update_snap(snap_id: str, snap_update: SnapUpdate, user_email: callable = De
 
     snap_service.update_snap(db, user_email, snap_id, snap_update)
 
-    return {"data": {"id": snap_id, "message": snap_update.message, "is_private": snap_update.is_private}}
+    return {"data": {"id": snap_id, "message": snap_update.message, "is_private": snap_update.is_private, "hashtags": snap_update.hashtags}}
 
 
 @snap_router.delete("/{snap_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -77,4 +77,9 @@ def get_all_snaps(db: Session = Depends(get_db)):
     Fetch all public and private TwitSnaps.
     """
     snaps = snap_service.get_all_snaps(db)
+    return {"data": snaps}
+
+@snap_router.get("/by-hashtag", summary="Search snaps by hashtag")
+def search_snaps(hashtag: str, db: Session = Depends(get_db)):
+    snaps = snap_service.search_snaps_by_hashtag(db, hashtag)
     return {"data": snaps}
