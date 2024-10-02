@@ -57,7 +57,7 @@ class SnapRepository:
         """
         Search for snaps that contain a specific hashtag.
         """
-        snaps = list(self.snaps_collection.find({"hashtags": hashtag}))
+        snaps = list(self.snaps_collection.find({"hashtags": hashtag}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         return snaps
