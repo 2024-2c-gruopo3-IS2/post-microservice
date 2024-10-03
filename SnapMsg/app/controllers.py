@@ -83,3 +83,13 @@ def get_all_snaps(db: Session = Depends(get_db)):
 def search_snaps(hashtag: str, db: Session = Depends(get_db)):
     snaps = snap_service.search_snaps_by_hashtag(db, hashtag)
     return {"data": snaps}
+
+@snap_router.get("/{snap_id}", response_model=SnapResponse)
+def get_snap(snap_id: str, db: Session = Depends(get_db)):
+    """
+    Get a Snap post by ID.
+    """
+    snap = snap_service.get_snap_by_id(db, snap_id)
+    if snap:
+        return {"data": snap}
+    raise HTTPException(status_code=404, detail="Snap not found.")

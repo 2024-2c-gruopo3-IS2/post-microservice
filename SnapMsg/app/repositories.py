@@ -27,6 +27,8 @@ class SnapRepository:
     
     def get_snap_by_id(self, snap_id):
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if snap:
+            snap['id'] = str(snap.pop('_id'))
         return snap
 
     def delete_snap(self, snap_id):

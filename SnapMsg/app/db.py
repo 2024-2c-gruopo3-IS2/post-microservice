@@ -17,6 +17,8 @@ else:
 
 db = client['twitsnaps']
 
+
+
 def get_db():
     """
     Provides a MongoDB database instance to be used in routes.

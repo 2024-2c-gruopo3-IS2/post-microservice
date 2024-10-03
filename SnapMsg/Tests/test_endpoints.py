@@ -11,8 +11,6 @@ from httpx import WSGITransport
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.main import app
-os.environ["ENVIRONMENT"] = "test"
-
 
 @pytest.fixture(autouse=True)
 def clear_database():
@@ -156,4 +154,12 @@ def test_search_snaps_by_non_existing_hashtag():
     assert data["type"] == "about:blank"
     assert data["title"] == "Snap Not Found"
 
+def test_get_snap_by_id():
+    response1 = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mocktoken"})
+
+    response = client.get(f"/snaps/{response1.json()['data']['id']}", headers={"Authorization": "Bearer mocktoken"})
     
+    assert response.status_code == 200
+    data = response.json()
+    assert data["data"]["message"] == "Snap"
+
