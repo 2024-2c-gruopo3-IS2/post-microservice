@@ -1,8 +1,6 @@
 import os
 import logging
 
-
-
 log_file_path = "logs/snapmsg.log"
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 

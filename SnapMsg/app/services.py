@@ -7,8 +7,9 @@ from .constants import MAX_MESSAGE_LENGTH
 from .schemas import SnapUpdate
 from .repositories import SnapRepository
 from pymongo.database import Database
+from .config import logger
 
-logger = logging.getLogger(__name__)
+
 
 def extract_hashtags(message: str) -> List[str]:
     """
@@ -84,5 +85,12 @@ class SnapService:
         snaps = self.snap_repository.get_all_snaps()
         if not snaps:
             raise HTTPException(status_code=404, detail="No snaps found.")
+        return snaps
+
+    def get_snaps_from_followed_users(self, db: Database, followed_users: List[str]):
+        """
+        obtains the snaps from the users followed by the user chronologically.
+        """
+        snaps = self.snap_repository.get_snaps_from_users(followed_users)
         return snaps
 

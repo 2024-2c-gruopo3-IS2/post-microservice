@@ -4,6 +4,7 @@ import sys
 import os
 import pytest
 import urllib.parse
+from app.users import get_followed_users, get_username_from_token
 from app.authentication import get_user_from_token
 from app.db import db
 from httpx import WSGITransport
@@ -19,12 +20,20 @@ def clear_database():
     db.twitsnaps.drop()
 
 def mock_get_user_from_token(_token: str = None):
-    return "mocked_email@example.com"
+    return {"email": "mocked_email@example.com", "token": ""}
+
+def mock_get_user_from_token_user_2(_token: str = None):
+    return {"email": "mocked_email_2@example.com", "token": ""}
+
+def mock_get_user_from_token_user_3(_token: str = None):
+    return {"email": "mocked_email_3@example.com", "token": ""}
 
 def mock_get_user_from_token_invalid(_token: str = None):
     raise HTTPException(status_code=401, detail="Invalid token")
 
+
 app.dependency_overrides[get_user_from_token] = mock_get_user_from_token
+
 
 transport = WSGITransport(app=app)
 client = TestClient(app)
@@ -162,4 +171,5 @@ def test_get_snap_by_id():
     assert response.status_code == 200
     data = response.json()
     assert data["data"]["message"] == "Snap"
+
 
