@@ -9,6 +9,9 @@ class SnapRepository:
         self.snaps_collection = db["twitsnaps"]
 
     def create_snap(self, email, message, is_private, hashtags):
+        """
+        Create a new snap.
+        """
         new_snap = {
             "email": email,
             "message": message,
@@ -22,6 +25,9 @@ class SnapRepository:
         return new_snap
 
     def get_snaps(self, email):
+        """
+        Fetch all snaps for a user.
+        """
         snaps = list(self.snaps_collection.find({"email": email}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
@@ -29,6 +35,9 @@ class SnapRepository:
         return snaps
     
     def get_snap_by_id(self, snap_id):
+        """
+        Fetch a snap by its ID.
+        """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
         if snap:
             snap['id'] = str(snap.pop('_id'))
@@ -36,11 +45,17 @@ class SnapRepository:
         return snap
 
     def delete_snap(self, snap_id):
+        """
+        Delete a snap.
+        """
         result = self.snaps_collection.delete_one({"_id": ObjectId(snap_id)})
         logger.info(f"Snap with id {snap_id} deleted")
         return result.deleted_count
 
     def update_snap(self, snap_id, update_data):
+        """
+        Update a snap.
+        """
         update_data = update_data.dict()
         result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": update_data})
         logger.info(f"Snap with id {snap_id} updated")
