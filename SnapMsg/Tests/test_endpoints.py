@@ -8,10 +8,13 @@ from app.users import get_followed_users, get_username_from_token
 from app.authentication import get_user_from_token
 from app.db import db
 from httpx import WSGITransport
+import ddtrace
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.main import app
+
+ddtrace.config.mongodb["service"] = None
 
 @pytest.fixture(autouse=True)
 def clear_database():
