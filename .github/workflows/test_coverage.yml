@@ -30,6 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r SnapMsg/app/requirements.txt
+        pip uninstall -y ddtrace
         pip install pytest pytest-cov
 
     - name: Run tests with coverage
