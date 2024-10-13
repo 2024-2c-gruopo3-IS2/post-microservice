@@ -35,6 +35,7 @@ jobs:
     - name: Run tests with coverage
       run: |
         export ENVIRONMENT="test"
+        export DD_TRACE_ENABLED=false
         cd SnapMsg
         coverage run -m pytest Tests/
 
