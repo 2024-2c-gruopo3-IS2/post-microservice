@@ -137,3 +137,31 @@ def unlike_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     user_email = user_data["email"]
     snap_service.unlike_snap(snap_id, user_email)
     return {"detail": "Snap unliked successfully"}
+
+@snap_router.post("/favourite", summary="Favourite a snap")
+def favourite_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Favourite a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.favourite_snap(snap_id, user_email)
+    return {"detail": "Snap favourited successfully"}
+
+@snap_router.post("/unfavourite", summary="Unfavourite a snap")
+def unfavourite_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Unfavourite a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.unfavourite_snap(snap_id, user_email)
+    return {"detail": "Snap unfavourited successfully"}
+
+@snap_router.get("/favourites/", summary="Get user's favourite snaps")
+def get_favourite_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get all Snap posts favourited by the user.
+    """
+    user_email = user_data["email"]
+    snaps = snap_service.get_favourite_snaps(user_email)
+
+    return {"data": snaps}

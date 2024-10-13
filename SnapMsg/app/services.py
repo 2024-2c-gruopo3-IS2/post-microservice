@@ -128,4 +128,45 @@ class SnapService:
             raise HTTPException(status_code=400, detail="You have not liked this snap.")
         
         return self.snap_repository.unlike_snap(snap_id, user_email)
+    
+    def favourite_snap(self, snap_id: str, user_email: str):
+        """
+        Favourite a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        post_favourites = self.snap_repository.get_snap_favourites(user_email)
+        
+        if snap_id in post_favourites:
+            raise HTTPException(status_code=400, detail="You have already favourited this snap.")
+        
+        return self.snap_repository.favourite_snap(snap_id, user_email)
+    
+    def unfavourite_snap(self, snap_id: str, user_email: str):
+        """
+        Unfavourite a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        post_favourites = self.snap_repository.get_snap_favourites(user_email)
 
+        if snap_id not in post_favourites:
+            raise HTTPException(status_code=400, detail="You have not favourited this snap.")
+        
+        return self.snap_repository.unfavourite_snap(snap_id, user_email)
+    
+    def get_favourite_snaps(self, user_email: str):
+        """
+        Get the snaps favourited by user.
+        """
+        snaps_ids = self.snap_repository.get_all_snap_favourites(user_email)
+        snaps = []
+        for snaps_id in snaps_ids:
+            snap = self.snap_repository.get_snap_by_id(snaps_id)
+            if snap:
+                snaps.append(snap)
+        return snaps

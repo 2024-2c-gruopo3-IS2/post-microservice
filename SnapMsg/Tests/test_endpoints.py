@@ -208,3 +208,32 @@ def test_unlike_snap_not_liked():
 
     assert response_unlike.status_code == 400
     assert response_unlike.json()['detail'] == "You have not liked this snap."
+
+def test_favourite_snap():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+
+    response_favourite = client.post(f"/snaps/favourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+
+    assert response_favourite.status_code == 200
+    assert response_favourite.json() == {"detail":"Snap favourited successfully"}
+
+def test_favourite_snap_already_favourited():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+    client.post(f"/snaps/favourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+    response_favourite2 = client.post(f"/snaps/favourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+
+    assert response_favourite2.status_code == 400
+    assert response_favourite2.json()['detail'] == "You have already favourited this snap."
+
+def test_unfavourite_snap():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+    client.post(f"/snaps/favourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+    response_unfavourite = client.post(f"/snaps/unfavourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+    assert response_unfavourite.status_code == 200
+    assert response_unfavourite.json() == {"detail":"Snap unfavourited successfully"}
+
+def test_unfavourite_snap_not_favourited():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+    response_unfavourite = client.post(f"/snaps/unfavourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+    assert response_unfavourite.status_code == 400
+    assert response_unfavourite.json()['detail'] == "You have not favourited this snap."

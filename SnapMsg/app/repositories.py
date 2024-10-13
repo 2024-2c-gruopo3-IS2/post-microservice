@@ -8,6 +8,7 @@ class SnapRepository:
     def __init__(self, db):
         self.snaps_collection = db["twitsnaps"]
         self.likes_collection = db["likes"]
+        self.favourites_collection = db["favourites"]
 
     def create_snap(self, email, message, is_private, hashtags):
         """
@@ -43,7 +44,7 @@ class SnapRepository:
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
         if snap:
             snap['id'] = str(snap.pop('_id'))
-        logger.info(f"Snap with id {snap_id} retrieved")
+            logger.info(f"Snap with id {snap_id} retrieved")
         return snap
 
     def delete_snap(self, snap_id):
@@ -62,14 +63,6 @@ class SnapRepository:
         result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": update_data})
         logger.info(f"Snap with id {snap_id} updated")
         return result.modified_count
-
-    def get_user_snaps(self, user_id):
-        logger.info(f"Getting snaps for user {user_id}")
-        return list(self.snaps_collection.find({"user_id": user_id}))
-
-    def get_public_snaps(self):
-        logger.info(f"Getting public snaps")
-        return list(self.snaps_collection.find({"is_private": False}))
     
     def get_all_snaps(self):
         """
@@ -138,5 +131,41 @@ class SnapRepository:
 
         return result.deleted_count
     
-
+    def favourite_snap(self, snap_id, user_email):
+        """
+        Favourite a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap:
+            return False
+        
+        result = self.favourites_collection.insert_one({"snap_id": snap_id, "email": user_email})
+        return result.inserted_id
+    
+    def get_snap_favourites(self, user_email):
+        """
+        Get the IDs of snaps favourited by user.
+        """
+        favourites = [x["snap_id"] for x in list(self.favourites_collection.find({"email": user_email}, {"snap_id": 1, "_id": 0}))]
+        return favourites
+    
+    def unfavourite_snap(self, snap_id, user_email):
+        """
+        Unfavourite a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap:
+            return False
+        
+        result = self.favourites_collection.delete_one({"snap_id": snap_id, "email": user_email})
+        return result.deleted_count
+    
+    def get_all_snap_favourites(self, user_email):
+        """
+        Get all the favourites for all snaps.
+        """
+        favourites = list(self.favourites_collection.find({"email": user_email}))
+        for favourite in favourites:
+            favourite["_id"] = str(favourite["_id"])
+        return [x["snap_id"] for x in favourites]
 
