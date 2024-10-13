@@ -11,7 +11,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy
+      - name: Deploy to Render
+        id: deploy
         uses: johnbeynon/render-deploy-action@v0.0.8
         with:
           service-id: ${{ secrets.RENDER_SERVICE_ID }}
@@ -21,3 +22,35 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
+      - name: Datadog - Send Deployment Success Event
+        if: success() 
+        uses: masci/datadog@v1
+        with:
+          api-key: ${{ secrets.DATADOG_API_KEY }}
+          events: |
+            - title: "Successful deployment of post-microservice"
+              text: "The post-microservice was successfully deployed to Render."
+              alert_type: "info"
+              host: ${{ github.repository_owner }}
+              tags:
+                - "project:${{ github.repository }}"
+                - "env:production"
+                - "status:success"
+
+      - name: Datadog - Send Deployment Failure Event
+        if: failure() 
+        uses: masci/datadog@v1
+        with:
+          api-key: ${{ secrets.DATADOG_API_KEY }}
+          events: |
+            - title: "Failed deployment of post-microservice"
+              text: "The post-microservice failed to deploy to Render. Check the logs for more details."
+              alert_type: "error"
+              host: ${{ github.repository_owner }}
+              tags:
+                - "project:${{ github.repository }}"
+                - "env:production"
+                - "status:failure"
+
+

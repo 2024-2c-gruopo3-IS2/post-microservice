@@ -9,3 +9,5 @@ httpx
 starlette
 pymongo
 requests
+ddtrace
+datadog
