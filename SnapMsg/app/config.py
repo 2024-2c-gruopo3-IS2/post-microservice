@@ -3,6 +3,7 @@ import logging
 from datadog import initialize
 from ddtrace import patch
 
+
 options = {
     'api_key': os.getenv('DD_API_KEY'),
     'app_key': os.getenv('DD_APP_KEY'),
