@@ -11,7 +11,7 @@ from .services import SnapService
 from .repositories import SnapRepository
 
 snap_router = APIRouter()
-snap_service = SnapService(SnapRepository(db), os.getenv("AUTH_SERVICE_URL"))
+snap_service = SnapService(SnapRepository(db),os.getenv("AUTH_SERVICE_URL"))
 
 @snap_router.post(
         "/",
@@ -119,3 +119,21 @@ def get_snap(snap_id: str, db: Session = Depends(get_db)):
     if snap:
         return {"data": snap}
     raise HTTPException(status_code=404, detail="Snap not found.")
+
+@snap_router.post("/like", summary="Like a snap")
+def like_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Like a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.like_snap(snap_id, user_email)
+    return {"detail": "Snap liked successfully"}
+
+@snap_router.post("/unlike", summary="Unlike a snap")
+def unlike_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Unlike a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.unlike_snap(snap_id, user_email)
+    return {"detail": "Snap unliked successfully"}

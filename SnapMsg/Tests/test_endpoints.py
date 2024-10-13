@@ -172,4 +172,39 @@ def test_get_snap_by_id():
     data = response.json()
     assert data["data"]["message"] == "Snap"
 
+def test_like_snap():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
 
+    response_like = client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mocktoken"})
+
+    assert response_like.status_code == 200
+    assert response_like.json() == {"detail": "Snap liked successfully"}
+
+def test_like_snap_already_liked():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+
+    client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mocktoken"})
+
+    response_like2 = client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mocktoken"})
+
+
+    assert response_like2.status_code == 400
+    assert response_like2.json()["detail"] == "You have already liked this snap."
+
+def test_unlike_snap():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+
+    client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+
+    response_unlike = client.post(f"/snaps/unlike?snap_id={response.json()['data']['id']}", headers={"Autorization":"Bearer mocktoken"})
+
+    assert response_unlike.status_code == 200
+    assert response_unlike.json() == {"detail":"Snap unliked successfully"}
+
+def test_unlike_snap_not_liked():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+
+    response_unlike = client.post(f"/snaps/unlike?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
+
+    assert response_unlike.status_code == 400
+    assert response_unlike.json()['detail'] == "You have not liked this snap."

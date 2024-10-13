@@ -16,6 +16,7 @@ else:
     client = MongoClient(db_url, server_api=ServerApi('1'))
 
 db = client['twitsnaps']
+#likes = client['likes']
 
 
 
@@ -24,3 +25,9 @@ def get_db():
     Provides a MongoDB database instance to be used in routes.
     """
     return db
+
+# def get_likes_db():
+#     """
+#     Provides a MongoDB database instance to be used in routes.
+#     """
+#     return likes

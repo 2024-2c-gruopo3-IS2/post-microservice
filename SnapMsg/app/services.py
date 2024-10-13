@@ -93,4 +93,39 @@ class SnapService:
         """
         snaps = self.snap_repository.get_snaps_from_users(followed_users)
         return snaps
+    
+    def like_snap(self, snap_id: str, user_email: str):
+        """
+        Like a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        post_likes = self.snap_repository.get_snap_likes(snap_id)
+        
+        print("POST LIKES\n\n\n")
+        print(post_likes)
+
+        print("USER EMAIL\n\n\n")
+        print(user_email)
+        if user_email in post_likes:
+            raise HTTPException(status_code=400, detail="You have already liked this snap.")
+        
+        return self.snap_repository.like_snap(snap_id, user_email)
+    
+    def unlike_snap(self, snap_id: str, user_email: str):
+        """
+        Unlike a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        post_likes = self.snap_repository.get_snap_likes(snap_id)
+
+        if user_email not in post_likes:
+            raise HTTPException(status_code=400, detail="You have not liked this snap.")
+        
+        return self.snap_repository.unlike_snap(snap_id, user_email)
 

@@ -7,6 +7,7 @@ from .config import logger
 class SnapRepository:
     def __init__(self, db):
         self.snaps_collection = db["twitsnaps"]
+        self.likes_collection = db["likes"]
 
     def create_snap(self, email, message, is_private, hashtags):
         """
@@ -17,7 +18,8 @@ class SnapRepository:
             "message": message,
             "created_at": datetime.datetime.now(),
             "is_private": is_private,
-            "hashtags": hashtags
+            "hashtags": hashtags,
+            "likes": 0
         }
         result = self.snaps_collection.insert_one(new_snap)
         new_snap["_id"] = str(result.inserted_id)
@@ -100,4 +102,41 @@ class SnapRepository:
             snap["_id"] = str(snap["_id"])
         logger.info(f"Retrieved snaps from followed users")
         return snaps
+    
+    def like_snap(self, snap_id, user_email):
+        """
+        Like a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap:
+            return False
+        
+        result = self.likes_collection.insert_one({"snap_id": snap_id, "email": user_email})
+
+        self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$inc": {"likes": 1}})
+
+        return result.inserted_id
+    
+    def get_snap_likes(self, snap_id):
+        """
+        Get the emails of likes for snap.
+        """
+        likes = [x["email"] for x in list(self.likes_collection.find({"snap_id": snap_id}, {"email": 1, "_id": 0}))]
+        return likes
+    
+    def unlike_snap(self, snap_id, user_email):
+        """
+        Unlike a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap:
+            return False
+        
+        result = self.likes_collection.delete_one({"snap_id": snap_id, "email": user_email})
+
+        self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$inc": {"likes": -1}})
+
+        return result.deleted_count
+    
+
 
