@@ -15,7 +15,7 @@ def extract_hashtags(message: str) -> List[str]:
     """
     Extract hashtags from the message, including the '#' symbol.
     """
-    return re.findall(r"(#\w+)", message)
+    return [hashtag.lower() for hashtag in re.findall(r"(#\w+)", message)]
 
 
 class SnapService:
@@ -23,13 +23,13 @@ class SnapService:
         self.snap_repository = snap_repository
         self.auth_service_url = auth_service_url
     
-    def create_snap(self, db: Database, user_email: str, message: str, is_private: bool):
+    def create_snap(self, db: Database, user_email: str, message: str, is_private: bool, username: str):
         """
         Create a new snap.
         """
 
         hashtags = extract_hashtags(message)
-        return self.snap_repository.create_snap(user_email, message, is_private, hashtags)
+        return self.snap_repository.create_snap(user_email, message, is_private, hashtags, username)
 
     def get_snaps(self, db: Database, user_email: str):
         """
@@ -188,4 +188,11 @@ class SnapService:
             snap = self.snap_repository.get_snap_by_id(snaps_id)
             if snap:
                 snaps.append(snap)
+        return snaps
+    
+    def get_relevant_snaps(self, interests: List[str]):
+        """
+        Get the snaps that are relevant to the user.
+        """
+        snaps = self.snap_repository.get_relevant_snaps(interests)
         return snaps

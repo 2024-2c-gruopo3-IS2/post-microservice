@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .users import get_followed_users, get_profile_by_username, get_username_from_token
+from .users import get_followed_users, get_profile_by_username
 from .authentication import get_user_from_token
 from .db import get_db, db
 from .constants import MAX_MESSAGE_LENGTH
@@ -28,11 +28,12 @@ def create_snap(snap: SnapCreate, user_data: dict = Depends(get_user_from_token)
     Create a new TwitSnap post for authenticated users.
     """
     user_email = user_data["email"]
+    username = user_data["username"]
 
     if len(snap.message) > MAX_MESSAGE_LENGTH:
         raise HTTPException(status_code=400, detail="Message exceeds 280 characters.")
     
-    snap_created = snap_service.create_snap(db, user_email, snap.message, snap.is_private)
+    snap_created = snap_service.create_snap(db, user_email, snap.message, snap.is_private, username)
     return {"data":{ "id": snap_created["_id"], "message": snap_created["message"], "is_private": snap_created["is_private"], "hashtags": snap_created["hashtags"]}}
 
 
@@ -83,24 +84,30 @@ def get_all_snaps(db: Session = Depends(get_db)):
     snaps = snap_service.get_all_snaps(db)
     return {"data": snaps}
 
-
-@snap_router.get("/snaps-followed/", summary="Get TwitSnaps from followed users")
-def get_followed_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
+@snap_router.get("/feed/", summary="Get TwitSnaps for feed")
+def get_feed_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
-    Get TwitSnaps from users the current user follows, ordered by most recent.
-    This function requires both the email and the token.
+    Get TwitSnaps from followed users and relevant content snaps.
     """
-    token = user_data["token"] 
-
-    username = get_username_from_token(token)
-
+    token = user_data["token"]
+    username = user_data["username"]
 
     followed_users = get_followed_users(token, username)
 
-    
-    snaps = snap_service.get_snaps_from_followed_users(db, followed_users)
-    
+    followed_snaps = snap_service.get_snaps_from_followed_users(db, followed_users)
+
+    interest = get_profile_by_username(username)["interests"]
+
+    relevant_snaps = snap_service.get_relevant_snaps(interest)
+
+    snaps = followed_snaps + relevant_snaps
+
+    snaps = sorted(snaps, key=lambda x: x["created_at"], reverse=True)
+
+    snaps = list({dic["_id"]: dic for dic in snaps}.values())
+
     return {"data": snaps}
+
 
 @snap_router.get("/by-hashtag", summary="Search snaps by hashtag")
 def search_snaps(hashtag: str, db: Session = Depends(get_db)):

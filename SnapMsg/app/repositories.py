@@ -10,12 +10,13 @@ class SnapRepository:
         self.likes_collection = db["likes"]
         self.favourites_collection = db["favourites"]
 
-    def create_snap(self, email, message, is_private, hashtags):
+    def create_snap(self, email, message, is_private, hashtags, username):
         """
         Create a new snap.
         """
         new_snap = {
             "email": email,
+            "username": username,
             "message": message,
             "created_at": datetime.datetime.now(),
             "is_private": is_private,
@@ -177,4 +178,14 @@ class SnapRepository:
         for like in likes:
             like["_id"] = str(like["_id"])
         return [x["snap_id"] for x in likes]
+    
+    def get_relevant_snaps(self, interests: List[str]):
+        """
+        Get snaps relevant to the user's interests.
+        """
+        interests = ["#" + x.lower() for x in interests]
+        snaps = list(self.snaps_collection.find({"hashtags": {"$in": interests}}))
+        for snap in snaps:
+            snap["_id"] = str(snap["_id"])
+        return snaps
 
