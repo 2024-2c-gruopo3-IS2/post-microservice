@@ -167,7 +167,7 @@ def get_favourite_snaps(user_data: dict = Depends(get_user_from_token), db: Sess
     return {"data": snaps}
 
 
-@snap_router.get("/{username}", summary="Get TwitSnaps by username")
+@snap_router.get("/by-username/{username}", summary="Get TwitSnaps by username")
 def get_snaps_by_username(
     username: str,  
     db: Session = Depends(get_db)
