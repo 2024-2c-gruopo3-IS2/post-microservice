@@ -237,3 +237,12 @@ def test_unfavourite_snap_not_favourited():
     response_unfavourite = client.post(f"/snaps/unfavourite?snap_id={response.json()['data']['id']}", headers={"Authorization": "Bearer mock"})
     assert response_unfavourite.status_code == 400
     assert response_unfavourite.json()['detail'] == "You have not favourited this snap."
+
+def test_get_favourite_snaps():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
+    client.post(f"/snaps/favourite?snap_id={response.json()['data']['id']}", headers={"Authorization ": "Bearer mock"})
+    response_favourite = client.get("/snaps/favourites/", headers={"Authorization ": "Bearer mock"})
+    assert response_favourite.status_code == 200
+    data = response_favourite.json()
+    assert len(data["data"]) == 1
+    assert data["data"][0]["message"] == "Snap"

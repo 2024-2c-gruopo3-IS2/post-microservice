@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .users import get_followed_users, get_username_from_token
+from .users import get_followed_users, get_profile_by_username, get_username_from_token
 from .authentication import get_user_from_token
 from .db import get_db, db
 from .constants import MAX_MESSAGE_LENGTH
@@ -163,5 +163,20 @@ def get_favourite_snaps(user_data: dict = Depends(get_user_from_token), db: Sess
     """
     user_email = user_data["email"]
     snaps = snap_service.get_favourite_snaps(user_email)
+
+    return {"data": snaps}
+
+
+@snap_router.get("/{username}", summary="Get TwitSnaps by username")
+def get_snaps_by_username(
+    username: str,  
+    db: Session = Depends(get_db)
+):
+    """
+    Get TwitSnaps for a particular user based on their username.
+    """
+    user_email = get_profile_by_username(username)["email"]
+    
+    snaps = snap_service.get_snaps(db, user_email)
 
     return {"data": snaps}

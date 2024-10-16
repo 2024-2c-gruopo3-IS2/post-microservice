@@ -104,11 +104,6 @@ class SnapService:
         
         post_likes = self.snap_repository.get_snap_likes(snap_id)
         
-        print("POST LIKES\n\n\n")
-        print(post_likes)
-
-        print("USER EMAIL\n\n\n")
-        print(user_email)
         if user_email in post_likes:
             raise HTTPException(status_code=400, detail="You have already liked this snap.")
         

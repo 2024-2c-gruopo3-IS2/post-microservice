@@ -22,7 +22,7 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
     raise exc
 
 
-app.include_router(snap_router, prefix="/snaps")
+app.include_router(snap_router, prefix="/snaps", tags=["snaps"])
 
 logger.info("FastAPI application is starting...")
 
