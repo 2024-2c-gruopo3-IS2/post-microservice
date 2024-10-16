@@ -138,6 +138,16 @@ def unlike_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     snap_service.unlike_snap(snap_id, user_email)
     return {"detail": "Snap unliked successfully"}
 
+@snap_router.get("/liked/", summary="Get user's liked snaps")
+def get_liked_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get all Snap posts liked by the user.
+    """
+    user_email = user_data["email"]
+    snaps = snap_service.get_liked_snaps(user_email)
+
+    return {"data": snaps}
+
 @snap_router.post("/favourite", summary="Favourite a snap")
 def favourite_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     """

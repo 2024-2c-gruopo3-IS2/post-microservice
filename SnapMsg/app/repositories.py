@@ -168,4 +168,13 @@ class SnapRepository:
         for favourite in favourites:
             favourite["_id"] = str(favourite["_id"])
         return [x["snap_id"] for x in favourites]
+    
+    def get_all_snap_likes(self, user_email):
+        """
+        Get all the likes for all snaps.
+        """
+        likes = list(self.likes_collection.find({"email": user_email}))
+        for like in likes:
+            like["_id"] = str(like["_id"])
+        return [x["snap_id"] for x in likes]
 

@@ -24,21 +24,33 @@ class SnapService:
         self.auth_service_url = auth_service_url
     
     def create_snap(self, db: Database, user_email: str, message: str, is_private: bool):
+        """
+        Create a new snap.
+        """
 
         hashtags = extract_hashtags(message)
         return self.snap_repository.create_snap(user_email, message, is_private, hashtags)
 
     def get_snaps(self, db: Database, user_email: str):
+        """
+        Fetch all snaps for a user.
+        """
 
         return self.snap_repository.get_snaps(user_email)
 
     def get_snap_by_id(self, db: Database, snap_id: str):
+        """
+        Fetch a snap by its ID.
+        """
         snap = self.snap_repository.get_snap_by_id(snap_id)
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
         return snap
 
     def delete_snap(self, db: Database, snap_id: str, user_email: str):
+        """
+        Delete a snap.
+        """
 
         snap = self.snap_repository.get_snap_by_id(snap_id)
 
@@ -159,6 +171,18 @@ class SnapService:
         Get the snaps favourited by user.
         """
         snaps_ids = self.snap_repository.get_all_snap_favourites(user_email)
+        snaps = []
+        for snaps_id in snaps_ids:
+            snap = self.snap_repository.get_snap_by_id(snaps_id)
+            if snap:
+                snaps.append(snap)
+        return snaps
+    
+    def get_liked_snaps(self, user_email: str):
+        """
+        Get the snaps liked by user.
+        """
+        snaps_ids = self.snap_repository.get_all_snap_likes(user_email)
         snaps = []
         for snaps_id in snaps_ids:
             snap = self.snap_repository.get_snap_by_id(snaps_id)

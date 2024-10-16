@@ -246,3 +246,12 @@ def test_get_favourite_snaps():
     data = response_favourite.json()
     assert len(data["data"]) == 1
     assert data["data"][0]["message"] == "Snap"
+
+def test_get_liked_snaps():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
+    client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={" Authorization ": "Bearer mock"})
+    response_liked = client.get("/snaps/liked/", headers = {"Authorization ": "Bearer mock"})
+    assert response_liked.status_code == 200
+    data = response_liked.json()
+    assert len(data["data"]) == 1
+    assert data["data"][0]["message"] == "Snap"
