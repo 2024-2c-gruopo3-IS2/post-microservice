@@ -104,10 +104,10 @@ def test_get_all_snaps():
 def test_get_all_snaps_no_snaps():
     
     response = client.get("/snaps/all-snaps", headers={"Authorization ": "Bearer mocktoken"})
-    assert response.status_code == 404
+    assert response.status_code == 200
     data = response.json()
-    assert data["type"] == "about:blank"
-    assert data["title"] == "Snap Not Found"
+    assert len(data["data"]) == 0
+   
 
 
 def test_create_snap_with_hashtags():
