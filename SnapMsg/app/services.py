@@ -95,8 +95,6 @@ class SnapService:
         Fetch all snaps from the database.
         """
         snaps = self.snap_repository.get_all_snaps()
-        if not snaps:
-            raise HTTPException(status_code=404, detail="No snaps found.")
         return snaps
 
     def get_snaps_from_followed_users(self, db: Database, followed_users: List[str]):
