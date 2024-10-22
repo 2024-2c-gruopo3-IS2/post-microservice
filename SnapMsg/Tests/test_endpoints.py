@@ -254,3 +254,32 @@ def test_get_liked_snaps():
     data = response_liked.json()
     assert len(data["data"]) == 1
     assert data["data"][0]["message"] == "Snap"
+
+
+def test_block_snap():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
+    snap_id = response.json()["data"]["id"]
+    response_block = client.post(f"/snaps/block?snap_id={snap_id}", headers={" Authorization ": "Bearer mock"})
+    assert response_block.status_code == 200
+    assert response_block.json() == {"detail":"Snap blocked successfully"}
+
+def test_block_snap_already_blocked():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
+    snap_id = response.json()["data"]["id"]
+    client.post(f"/snaps/block?snap_id={snap_id}", headers = {"Authorization ": "Bearer mock"})
+    response_block2 = client.post(f"/snaps/block?snap_id={snap_id}", headers = {"Authorization ": "Bearer mock"})
+    assert response_block2.status_code == 400
+    assert response_block2.json()["detail"] == "Snap already blocked."
+
+def test_get_snaps_blocked():
+    client.post("/snaps/", json={"message": "Test snap", "is_private": False})
+    response_post = client.post("/snaps/", json={"message": "Another test snap", "is_private": False})
+    snap_id = response_post.json()["data"]["id"]
+    client.post(f"/snaps/block?snap_id={snap_id}", headers = {"Authorization ": "Bearer mock"})
+
+    response = client.get("/snaps/")
+    assert response.status_code == 200
+    data = response.json()
+    print("Data: ", data)
+    assert len(data["data"]) == 1
+    assert data["data"][0]["message"] == "Test snap"

@@ -194,3 +194,16 @@ class SnapService:
         """
         snaps = self.snap_repository.get_relevant_snaps(interests)
         return snaps
+    
+    def block_snap(self, snap_id: str, user_email: str):
+        """
+        Block a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        blocked_snap = self.snap_repository.block_snap(snap_id, user_email)
+        if not blocked_snap:
+            raise HTTPException(status_code=400, detail="Snap already blocked.")
+        return blocked_snap

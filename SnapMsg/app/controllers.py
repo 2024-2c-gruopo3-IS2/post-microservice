@@ -197,3 +197,12 @@ def get_snaps_by_username(
     snaps = snap_service.get_snaps(db, user_email)
 
     return {"data": snaps}
+
+@snap_router.post("/block", summary="Block a twitsnap")
+def block_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Block a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.block_snap(snap_id, user_email)
+    return {"detail": "Snap blocked successfully"}

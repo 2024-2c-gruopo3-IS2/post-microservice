@@ -21,7 +21,8 @@ class SnapRepository:
             "created_at": datetime.datetime.now(),
             "is_private": is_private,
             "hashtags": hashtags,
-            "likes": 0
+            "likes": 0,
+            "is_blocked": False
         }
         result = self.snaps_collection.insert_one(new_snap)
         new_snap["_id"] = str(result.inserted_id)
@@ -32,7 +33,7 @@ class SnapRepository:
         """
         Fetch all snaps for a user.
         """
-        snaps = list(self.snaps_collection.find({"email": email}).sort("created_at", -1))
+        snaps = list(self.snaps_collection.find({"email": email, "is_blocked": False}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         logger.info(f"Snaps retrieved for user {email}")
@@ -43,9 +44,12 @@ class SnapRepository:
         Fetch a snap by its ID.
         """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
-        if snap:
+        if snap and not snap["is_blocked"]:
             snap['id'] = str(snap.pop('_id'))
             logger.info(f"Snap with id {snap_id} retrieved")
+        elif snap and snap["is_blocked"]:
+            logger.info(f"Snap with id {snap_id} is blocked")
+            snap = "Snap is blocked"
         return snap
 
     def delete_snap(self, snap_id):
@@ -69,7 +73,7 @@ class SnapRepository:
         """
         Fetch all public and private snaps from the database.
         """
-        snaps = list(self.snaps_collection.find().sort("created_at", -1))
+        snaps = list(self.snaps_collection.find({"is_blocked": False}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         logger.info(f"Retrieved all snaps")
@@ -79,7 +83,7 @@ class SnapRepository:
         """
         Search for snaps that contain a specific hashtag.
         """
-        snaps = list(self.snaps_collection.find({"hashtags": hashtag}).sort("created_at", -1))
+        snaps = list(self.snaps_collection.find({"hashtags": hashtag, "is_blocked": False}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         logger.info(f"Retrieved snaps with hashtag {hashtag}")
@@ -90,7 +94,7 @@ class SnapRepository:
         obtains the snaps from the users followed by the user.
         """
         logger.info(f"Fetching snaps for followed users: {followed_users}")
-        snaps = list(self.snaps_collection.find({"email": {"$in": followed_users}}).sort("created_at", -1))
+        snaps = list(self.snaps_collection.find({"email": {"$in": followed_users}, "is_blocked": False}).sort("created_at", -1))
         print(snaps)
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
@@ -102,7 +106,7 @@ class SnapRepository:
         Like a snap.
         """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
-        if not snap:
+        if not snap or snap["is_blocked"]:
             return False
         
         result = self.likes_collection.insert_one({"snap_id": snap_id, "email": user_email})
@@ -123,7 +127,7 @@ class SnapRepository:
         Unlike a snap.
         """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
-        if not snap:
+        if not snap or snap["is_blocked"]:
             return False
         
         result = self.likes_collection.delete_one({"snap_id": snap_id, "email": user_email})
@@ -137,7 +141,7 @@ class SnapRepository:
         Favourite a snap.
         """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
-        if not snap:
+        if not snap or snap["is_blocked"]:
             return False
         
         result = self.favourites_collection.insert_one({"snap_id": snap_id, "email": user_email})
@@ -155,7 +159,7 @@ class SnapRepository:
         Unfavourite a snap.
         """
         snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
-        if not snap:
+        if not snap or snap["is_blocked"]:
             return False
         
         result = self.favourites_collection.delete_one({"snap_id": snap_id, "email": user_email})
@@ -184,8 +188,20 @@ class SnapRepository:
         Get snaps relevant to the user's interests.
         """
         interests = ["#" + x.lower() for x in interests]
-        snaps = list(self.snaps_collection.find({"hashtags": {"$in": interests}}))
+        snaps = list(self.snaps_collection.find({"hashtags": {"$in": interests}, "is_blocked": False}).sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         return snaps
+    
+    def block_snap(self, snap_id, user_email):
+        """
+        Block a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap or snap["is_blocked"]:
+            return False
+        
+        result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": {"is_blocked": True}})
+        return result.modified_count
+
 
