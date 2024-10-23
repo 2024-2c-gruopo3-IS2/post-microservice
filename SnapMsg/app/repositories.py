@@ -73,7 +73,7 @@ class SnapRepository:
         """
         Fetch all public and private snaps from the database.
         """
-        snaps = list(self.snaps_collection.find({"is_blocked": False}).sort("created_at", -1))
+        snaps = list(self.snaps_collection.find().sort("created_at", -1))
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         logger.info(f"Retrieved all snaps")
@@ -202,6 +202,17 @@ class SnapRepository:
             return False
         
         result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": {"is_blocked": True}})
+        return result.modified_count
+    
+    def unblock_snap(self, snap_id, user_email):
+        """
+        Unblock a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap or not snap["is_blocked"]:
+            return False
+        
+        result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": {"is_blocked": False}})
         return result.modified_count
 
 

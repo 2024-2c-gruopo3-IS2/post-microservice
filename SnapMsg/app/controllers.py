@@ -206,3 +206,13 @@ def block_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     user_email = user_data["email"]
     snap_service.block_snap(snap_id, user_email)
     return {"detail": "Snap blocked successfully"}
+
+@snap_router.post("/unblock", summary="Unblocke a twitsnap")
+def unblock_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Unblock a Snap post.
+    """
+    user_email = user_data["email"]
+    snap_service.unblock_snap(snap_id, user_email)
+    return {"detail": "Snap unblocked successfully"}
+

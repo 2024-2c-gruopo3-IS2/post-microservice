@@ -45,6 +45,8 @@ class SnapService:
         snap = self.snap_repository.get_snap_by_id(snap_id)
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
         return snap
 
     def delete_snap(self, db: Database, snap_id: str, user_email: str):
@@ -56,6 +58,9 @@ class SnapService:
 
         if not snap:
             raise HTTPException(status_code=404, detail=f"Snap with ID {snap_id} not found.")
+        
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
 
         if snap["email"] != user_email:
             raise HTTPException(status_code=403, detail="Not authorized to delete this snap.")
@@ -74,6 +79,9 @@ class SnapService:
     
         if snap["email"] != user_email:
             raise HTTPException(status_code=403, detail="Not authorized to update this snap.")
+        
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
 
         
         if snap_update.message:
@@ -112,6 +120,9 @@ class SnapService:
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
         
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
+        
         post_likes = self.snap_repository.get_snap_likes(snap_id)
         
         if user_email in post_likes:
@@ -126,6 +137,9 @@ class SnapService:
         snap = self.snap_repository.get_snap_by_id(snap_id)
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
         
         post_likes = self.snap_repository.get_snap_likes(snap_id)
 
@@ -142,6 +156,9 @@ class SnapService:
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
         
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
+        
         post_favourites = self.snap_repository.get_snap_favourites(user_email)
         
         if snap_id in post_favourites:
@@ -156,6 +173,9 @@ class SnapService:
         snap = self.snap_repository.get_snap_by_id(snap_id)
         if not snap:
             raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
         
         post_favourites = self.snap_repository.get_snap_favourites(user_email)
 
@@ -172,7 +192,7 @@ class SnapService:
         snaps = []
         for snaps_id in snaps_ids:
             snap = self.snap_repository.get_snap_by_id(snaps_id)
-            if snap:
+            if snap and snap != "Snap is blocked":
                 snaps.append(snap)
         return snaps
     
@@ -184,7 +204,7 @@ class SnapService:
         snaps = []
         for snaps_id in snaps_ids:
             snap = self.snap_repository.get_snap_by_id(snaps_id)
-            if snap:
+            if snap and snap != "Snap is blocked":
                 snaps.append(snap)
         return snaps
     
@@ -207,3 +227,16 @@ class SnapService:
         if not blocked_snap:
             raise HTTPException(status_code=400, detail="Snap already blocked.")
         return blocked_snap
+    
+    def unblock_snap(self, snap_id: str, user_email: str):
+        """
+        Unblock a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        unblocked_snap = self.snap_repository.unblock_snap(snap_id, user_email)
+        if not unblocked_snap:
+            raise HTTPException(status_code=400, detail="Snap already unblocked.")
+        return unblocked_snap
