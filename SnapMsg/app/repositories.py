@@ -214,5 +214,14 @@ class SnapRepository:
         
         result = self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$set": {"is_blocked": False}})
         return result.modified_count
+    
+    def get_snaps_unblocked(self, user_email):
+        """
+        Get all unblocked snaps.
+        """
+        snaps = list(self.snaps_collection.find({"is_blocked": False}).sort("created_at", -1))
+        for snap in snaps:
+            snap["_id"] = str(snap["_id"])
+        return snaps
 
 

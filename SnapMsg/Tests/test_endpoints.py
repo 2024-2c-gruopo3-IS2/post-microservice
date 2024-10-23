@@ -298,3 +298,16 @@ def test_unblock_snap_not_blocked():
     response_unblock = client.post(f"/snaps/unblock?snap_id={snap_id}", headers = {"Authorization ": "Bearer mock"})
     assert response_unblock.status_code == 400
     assert response_unblock.json()["detail"] == "Snap already unblocked."
+
+def test_get_snaps_unblocked():
+    client.post("/snaps/", json={"message": "Test snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
+    response_post = client.post("/snaps/", json={"message": "Another test snap", "is_private": False}, headers={" Authorization ": "Bearer mock"})
+    snap_id = response_post.json()["data"]["id"]
+    client.post(f"/snaps/block?snap_id={snap_id}", headers = {"Authorization ": "Bearer mock"})
+
+    response = client.get("/snaps/unblocked/", headers={"Authorization ": "Bearer mock"})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["data"]) == 1
+    assert data["data"][0]["message"] == "Test snap"
+   

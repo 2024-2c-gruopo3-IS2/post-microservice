@@ -216,3 +216,13 @@ def unblock_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     snap_service.unblock_snap(snap_id, user_email)
     return {"detail": "Snap unblocked successfully"}
 
+@snap_router.get("/unblocked/", summary="Get unblocked snaps")
+def get_unblocked_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get all unblocked Snap posts.
+    """
+    user_email = user_data["email"]
+    snaps = snap_service.get_unblocked_snaps(user_email)
+
+    return {"data": snaps}
+

@@ -240,3 +240,10 @@ class SnapService:
         if not unblocked_snap:
             raise HTTPException(status_code=400, detail="Snap already unblocked.")
         return unblocked_snap
+    
+    def get_unblocked_snaps(self, user_email: str):
+        """
+        Get all the snaps that are unblocked.
+        """
+        snaps = self.snap_repository.get_snaps_unblocked(user_email)
+        return snaps
