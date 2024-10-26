@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from .users import get_followed_users, get_profile_by_username
-from .authentication import get_user_from_token
+from .authentication import get_admin_from_token, get_user_from_token
 from .db import get_db, db
 from .constants import MAX_MESSAGE_LENGTH
 from .schemas import ErrorResponse, SnapCreate, SnapResponse, SnapUpdate
@@ -199,7 +199,7 @@ def get_snaps_by_username(
     return {"data": snaps}
 
 @snap_router.post("/block", summary="Block a twitsnap")
-def block_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+def block_snap(snap_id: str, user_data: dict = Depends(get_admin_from_token)):
     """
     Block a Snap post.
     """
@@ -208,7 +208,7 @@ def block_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     return {"detail": "Snap blocked successfully"}
 
 @snap_router.post("/unblock", summary="Unblocke a twitsnap")
-def unblock_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+def unblock_snap(snap_id: str, user_data: dict = Depends(get_admin_from_token)):
     """
     Unblock a Snap post.
     """

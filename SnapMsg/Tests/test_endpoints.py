@@ -4,7 +4,7 @@ import sys
 import os
 import pytest
 import urllib.parse
-from app.authentication import get_user_from_token
+from app.authentication import get_user_from_token, get_admin_from_token
 from app.db import db
 from httpx import WSGITransport
 
@@ -29,6 +29,9 @@ def mock_get_user_from_token_user_3(_token: str = None):
 
 def mock_get_user_from_token_invalid(_token: str = None):
     raise HTTPException(status_code=401, detail="Invalid token")
+
+def mock_get_admin_from_token(_token: str = None):
+    return {"email": "mocked_admin_email@example.com", "token": ""}
 
 
 app.dependency_overrides[get_user_from_token] = mock_get_user_from_token
@@ -259,6 +262,7 @@ def test_get_liked_snaps():
 def test_block_snap():
     response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization ": "Bearer mock"})
     snap_id = response.json()["data"]["id"]
+    app.dependency_overrides[get_admin_from_token] = mock_get_admin_from_token
     response_block = client.post(f"/snaps/block?snap_id={snap_id}", headers={" Authorization ": "Bearer mock"})
     assert response_block.status_code == 200
     assert response_block.json() == {"detail":"Snap blocked successfully"}
