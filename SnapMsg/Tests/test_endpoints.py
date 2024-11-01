@@ -314,4 +314,12 @@ def test_get_snaps_unblocked():
     data = response.json()
     assert len(data["data"]) == 1
     assert data["data"][0]["message"] == "Test snap"
+
+def test_get_trending_topics():
+    client.post("/snaps/", json={"message": "Snap with #fun", "is_private": False}, headers={"Authorization": "Bearer mock"})
+    response = client.get("/snaps/trending-topics/", headers={"Authorization": "Bearer mock"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["data"] == ["#fun"]
+
    

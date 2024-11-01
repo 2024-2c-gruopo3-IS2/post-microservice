@@ -226,3 +226,10 @@ def get_unblocked_snaps(user_data: dict = Depends(get_user_from_token), db: Sess
 
     return {"data": snaps}
 
+@snap_router.get("/trending-topics/", summary="Get trending hashtags")
+def get_trending_hashtags():
+    """
+    Get trending hashtags based on Snap posts.
+    """
+    hashtags = snap_service.get_trending_hashtags()
+    return {"data": hashtags}

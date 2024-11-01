@@ -223,5 +223,14 @@ class SnapRepository:
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         return snaps
+    
+    def get_last_24_hours_snaps(self):
+        """
+        Get all snaps from the last 24 hours.
+        """
+        snaps = list(self.snaps_collection.find({"created_at": {"$gte": datetime.datetime.now() - datetime.timedelta(days=1)}}).sort("created_at", -1))
+        for snap in snaps:
+            snap["_id"] = str(snap["_id"])
+        return snaps
 
 

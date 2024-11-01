@@ -247,3 +247,27 @@ class SnapService:
         """
         snaps = self.snap_repository.get_snaps_unblocked(user_email)
         return snaps
+    
+    def get_trending_hashtags(self):
+        """
+        Get the trending hashtags.
+        """
+        # traer los snaps de las ultimas 24 horas
+        last_24_hours_snaps = self.snap_repository.get_last_24_hours_snaps()
+        #obtener hashtags unicos
+        posible_hashtags = {} # (hashtag, puntaje)
+        for snap in last_24_hours_snaps:
+            
+            likes = self.snap_repository.get_snap_likes(snap["_id"])
+
+            for hashtag in snap["hashtags"]:
+                if hashtag not in posible_hashtags:
+                    posible_hashtags[hashtag] = 0
+                posible_hashtags[hashtag] += 10 + len(likes)
+
+        sorted_hashtags = sorted(posible_hashtags.items(), key=lambda x: x[1], reverse=True)
+        sorted_hashtags = [hashtag for hashtag, _ in sorted_hashtags]
+
+        if len(sorted_hashtags) > 5:
+            return sorted_hashtags[:5]
+        return sorted_hashtags
