@@ -263,11 +263,12 @@ class SnapService:
         for snap in last_24_hours_snaps:
             
             likes = self.snap_repository.get_snap_likes(snap["_id"])
+            retweets = self.snap_repository.get_snap_shares(snap["_id"])
 
             for hashtag in snap["hashtags"]:
                 if hashtag not in posible_hashtags:
                     posible_hashtags[hashtag] = 0
-                posible_hashtags[hashtag] += 10 + len(likes)
+                posible_hashtags[hashtag] += 10 + len(likes) + (2 * len(retweets))
 
         sorted_hashtags = sorted(posible_hashtags.items(), key=lambda x: x[1], reverse=True)
         sorted_hashtags = [hashtag for hashtag, _ in sorted_hashtags]

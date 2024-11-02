@@ -253,5 +253,14 @@ class SnapRepository:
         for share in shares:
             share["_id"] = str(share["_id"])
         return shares
+    
+    def get_snap_shares(self, snap_id):
+        """
+        Get all shares for a snap.
+        """
+        shares = list(self.snap_shares_collection.find({"snap_id": snap_id}))
+        for share in shares:
+            share["_id"] = str(share["_id"])
+        return shares
 
 
