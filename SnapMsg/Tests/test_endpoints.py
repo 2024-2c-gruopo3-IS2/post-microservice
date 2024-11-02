@@ -322,4 +322,12 @@ def test_get_trending_topics():
     data = response.json()
     assert data["data"] == ["#fun"]
 
+def test_snap_share():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization": "Bearer mock"})
+    snap_id = response.json()["data"]["id"]
+    response_share = client.post(f"/snaps/snap-share?snap_id={snap_id}", headers={"Authorization": "Bearer mock"})
+
+    assert response_share.status_code == 200
+    assert response_share.json() == {"detail":"Snap shared successfully"}
+
    

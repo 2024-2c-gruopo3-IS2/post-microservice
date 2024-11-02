@@ -100,9 +100,13 @@ def get_feed_snaps(user_data: dict = Depends(get_user_from_token), db: Session =
 
     relevant_snaps = snap_service.get_relevant_snaps(interest)
 
-    snaps = followed_snaps + relevant_snaps
+    retweets = snap_service.get_followed_retweeted_snaps(followed_users)
+
+    snaps = followed_snaps + relevant_snaps + retweets
 
     snaps = sorted(snaps, key=lambda x: x["created_at"], reverse=True)
+
+    print("\nsnaps\n", snaps)
 
     snaps = list({dic["_id"]: dic for dic in snaps}.values())
 
@@ -195,8 +199,12 @@ def get_snaps_by_username(
     user_email = get_profile_by_username(username)["email"]
     
     snaps = snap_service.get_snaps(db, user_email)
+    for snap in snaps:
+        snap["retweet_user"] = ""
 
-    return {"data": snaps}
+    retweeted_snaps = snap_service.get_retweeted_snaps(user_email)
+
+    return {"data": sorted(snaps + retweeted_snaps, key=lambda x: x["created_at"], reverse=True)}
 
 @snap_router.post("/block", summary="Block a twitsnap")
 def block_snap(snap_id: str, user_data: dict = Depends(get_admin_from_token)):
@@ -233,3 +241,13 @@ def get_trending_hashtags():
     """
     hashtags = snap_service.get_trending_hashtags()
     return {"data": hashtags}
+
+@snap_router.post("/snap-share", summary="Retweet a snap")
+def snap_share(snap_id: str, user_data: dict = Depends(get_user_from_token)):
+    """
+    Retweet a Snap post.
+    """
+    user_email = user_data["email"]
+    username = user_data["username"]
+    snap_service.snap_share(snap_id, user_email, username)
+    return {"detail": "Snap shared successfully"}

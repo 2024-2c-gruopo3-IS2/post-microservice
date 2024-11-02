@@ -9,6 +9,7 @@ class SnapRepository:
         self.snaps_collection = db["twitsnaps"]
         self.likes_collection = db["likes"]
         self.favourites_collection = db["favourites"]
+        self.snap_shares_collection = db["snap_shares"]
 
     def create_snap(self, email, message, is_private, hashtags, username):
         """
@@ -232,5 +233,25 @@ class SnapRepository:
         for snap in snaps:
             snap["_id"] = str(snap["_id"])
         return snaps
+    
+    def snap_share(self, snap_id, user_email, username):
+        """
+        Share a snap.
+        """
+        snap = self.snaps_collection.find_one({"_id": ObjectId(snap_id)})
+        if not snap or snap["is_blocked"]:
+            return False
+        
+        result = self.snap_shares_collection.insert_one({"snap_id": snap_id, "email": user_email, "username": username, "created_at": datetime.datetime.now()})
+        return result.inserted_id
+    
+    def get_snap_shares_by_email(self, user_email):
+        """
+        Get all snap shares.
+        """
+        shares = list(self.snap_shares_collection.find({"email": user_email}))
+        for share in shares:
+            share["_id"] = str(share["_id"])
+        return shares
 
 

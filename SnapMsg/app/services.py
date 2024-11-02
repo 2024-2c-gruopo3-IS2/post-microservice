@@ -110,6 +110,8 @@ class SnapService:
         obtains the snaps from the users followed by the user chronologically.
         """
         snaps = self.snap_repository.get_snaps_from_users(followed_users)
+        for snap in snaps:
+            snap["retweet_user"] = ""
         return snaps
     
     def like_snap(self, snap_id: str, user_email: str):
@@ -213,6 +215,8 @@ class SnapService:
         Get the snaps that are relevant to the user.
         """
         snaps = self.snap_repository.get_relevant_snaps(interests)
+        for snap in snaps:
+            snap["retweet_user"] = ""
         return snaps
     
     def block_snap(self, snap_id: str, user_email: str):
@@ -271,3 +275,46 @@ class SnapService:
         if len(sorted_hashtags) > 5:
             return sorted_hashtags[:5]
         return sorted_hashtags
+    
+    def snap_share(self, snap_id: str, user_email: str, username: str):
+        """
+        Share a snap.
+        """
+        snap = self.snap_repository.get_snap_by_id(snap_id)
+        if not snap:
+            raise HTTPException(status_code=404, detail="Snap not found.")
+        
+        if snap == "Snap is blocked":
+            raise HTTPException(status_code=400, detail="Snap is blocked.")
+        
+        return self.snap_repository.snap_share(snap_id, user_email, username)
+    
+    def get_retweeted_snaps(self, user_email: str):
+        """
+        Get the snaps retweeted by user.
+        """
+        snap_shares = self.snap_repository.get_snap_shares_by_email(user_email)
+        print("snap_shares", snap_shares)
+        snaps = []
+        for snap_share in snap_shares:
+            snap = self.snap_repository.get_snap_by_id(snap_share["snap_id"])
+            if snap and snap != "Snap is blocked":
+                snap["created_at"] = snap_share["created_at"]
+                snap["retweet_user"] = snap_share["username"]
+                print("snap_share", snap_share)
+                snap["_id"] = snap_share["_id"]
+                snap.pop("id")
+                snaps.append(snap)
+
+        return snaps
+    
+    def get_followed_retweeted_snaps(self, followed_users: List[str]):
+        """
+        Get the snaps retweeted by the users followed by user.
+        """
+        print("followed_users", followed_users)
+        retweets = []
+        for user_email in followed_users:
+            retweets.extend(self.get_retweeted_snaps(user_email))
+
+        return retweets
