@@ -251,3 +251,13 @@ def snap_share(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     username = user_data["username"]
     snap_service.snap_share(snap_id, user_email, username)
     return {"detail": "Snap shared successfully"}
+
+@snap_router.post("/shared/", summary="Get shared snaps")
+def get_shared_snaps(user_data: dict = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get all Snap posts shared by the user.
+    """
+    user_email = user_data["email"]
+    snaps = snap_service.get_shared_snaps(user_email)
+
+    return {"data": snaps}

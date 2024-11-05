@@ -319,3 +319,18 @@ class SnapService:
             retweets.extend(self.get_retweeted_snaps(user_email))
 
         return retweets
+    
+    def get_shared_snaps(self, user_email: str):
+        """
+        Get the snaps shared by user.
+        """
+        snap_shares = self.snap_repository.get_snap_shares_by_email(user_email)
+        snaps = []
+        for snap_share in snap_shares:
+            snap = self.snap_repository.get_snap_by_id(snap_share["snap_id"])
+            if snap and snap != "Snap is blocked":
+                snap["created_at"] = snap_share["created_at"]
+                snap["retweet_user"] = snap_share["username"]
+                snaps.append(snap)
+
+        return snaps
