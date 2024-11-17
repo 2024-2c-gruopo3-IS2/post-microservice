@@ -137,7 +137,8 @@ def like_snap(snap_id: str, user_data: dict = Depends(get_user_from_token)):
     Like a Snap post.
     """
     user_email = user_data["email"]
-    snap_service.like_snap(snap_id, user_email)
+    username = user_data["username"]
+    snap_service.like_snap(snap_id, user_email, username)
     return {"detail": "Snap liked successfully"}
 
 @snap_router.post("/unlike", summary="Unlike a snap")
@@ -261,3 +262,14 @@ def get_shared_snaps(user_data: dict = Depends(get_user_from_token), db: Session
     snaps = snap_service.get_shared_snaps(user_email)
 
     return {"data": snaps}
+
+
+@snap_router.get("/users-interactions/", summary="Get users iteractions with my snaps")
+def get_users_interactions(user_data: dict = Depends(get_user_from_token)):
+    """
+    Get all users who interacted with user's Snap posts.
+    """
+    user_email = user_data["email"]
+    users = snap_service.get_users_liked_and_retweeted_snaps(user_email)
+
+    return {"data": users}

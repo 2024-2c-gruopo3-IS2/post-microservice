@@ -102,7 +102,7 @@ class SnapRepository:
         logger.info(f"Retrieved snaps from followed users")
         return snaps
     
-    def like_snap(self, snap_id, user_email):
+    def like_snap(self, snap_id, user_email, username):
         """
         Like a snap.
         """
@@ -110,7 +110,7 @@ class SnapRepository:
         if not snap or snap["is_blocked"]:
             return False
         
-        result = self.likes_collection.insert_one({"snap_id": snap_id, "email": user_email})
+        result = self.likes_collection.insert_one({"snap_id": snap_id, "email": user_email, "username": username, "created_at": datetime.datetime.now()})
 
         self.snaps_collection.update_one({"_id": ObjectId(snap_id)}, {"$inc": {"likes": 1}})
 
@@ -122,6 +122,20 @@ class SnapRepository:
         """
         likes = [x["email"] for x in list(self.likes_collection.find({"snap_id": snap_id}, {"email": 1, "_id": 0}))]
         return likes
+    
+    def get_users_and_time_snap_likes(self, snap_id):
+        """
+        Get the emails and time of likes for snap.
+        """
+        likes = list(self.likes_collection.find({"snap_id": snap_id}, {"username": 1, "created_at": 1, "_id": 0}))
+        return likes
+    
+    def get_users_and_time_snap_shares(self, snap_id):
+        """
+        Get the emails and time of shares for snap.
+        """
+        shares = list(self.snap_shares_collection.find({"snap_id": snap_id}, {"username": 1, "created_at": 1, "_id": 0}))
+        return shares
     
     def unlike_snap(self, snap_id, user_email):
         """

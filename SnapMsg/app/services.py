@@ -114,7 +114,7 @@ class SnapService:
             snap["retweet_user"] = ""
         return snaps
     
-    def like_snap(self, snap_id: str, user_email: str):
+    def like_snap(self, snap_id: str, user_email: str, username: str):
         """
         Like a snap.
         """
@@ -130,7 +130,7 @@ class SnapService:
         if user_email in post_likes:
             raise HTTPException(status_code=400, detail="You have already liked this snap.")
         
-        return self.snap_repository.like_snap(snap_id, user_email)
+        return self.snap_repository.like_snap(snap_id, user_email, username)
     
     def unlike_snap(self, snap_id: str, user_email: str):
         """
@@ -334,3 +334,34 @@ class SnapService:
                 snaps.append(snap)
 
         return snaps
+    
+    def get_users_liked_and_retweeted_snaps(self, user_email: str):
+        """
+        Get the users who liked and retweeted the user's snaps, grouped by snap ID.
+        """
+        snaps = self.snap_repository.get_snaps(user_email)
+        users_interactions_by_snap = {}
+
+        for snap in snaps:
+            snap_id = str(snap["_id"])
+            if snap_id not in users_interactions_by_snap:
+                users_interactions_by_snap[snap_id] = {"likes": [], "retweets": []}
+            
+            likes = self.snap_repository.get_users_and_time_snap_likes(snap["_id"])
+            for like in likes:
+                users_interactions_by_snap[snap_id]["likes"].append({
+                    "username": like["username"],
+                    "created_at": like["created_at"]
+                })
+            
+            retweets = self.snap_repository.get_users_and_time_snap_shares(snap["_id"])
+            for retweet in retweets:
+                users_interactions_by_snap[snap_id]["retweets"].append({
+                    "username": retweet["username"],
+                    "created_at": retweet["created_at"]
+                })
+
+        return users_interactions_by_snap
+
+           
+        
