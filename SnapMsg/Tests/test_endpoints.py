@@ -330,4 +330,23 @@ def test_snap_share():
     assert response_share.status_code == 200
     assert response_share.json() == {"detail":"Snap shared successfully"}
 
+
+def test_get_users_interactions():
+    response = client.post("/snaps/", json={"message": "Snap", "is_private": False}, headers={"Authorization":"Bearer mock"})
+    app.dependency_overrides[get_user_from_token] = mock_get_user_from_token_user_2
+    client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization":"Bearer mock"})
+    app.dependency_overrides[get_user_from_token] = mock_get_user_from_token_user_3
+    client.post(f"/snaps/like?snap_id={response.json()['data']['id']}", headers={"Authorization":"Bearer mock"})
+    client.post(f"/snaps/snap-share?snap_id={response.json()['data']['id']}", headers={"Authorization":"Bearer mock"})
+    app.dependency_overrides[get_user_from_token] = mock_get_user_from_token
+    response_users = client.get("/snaps/users-interactions/", headers={"Authorization":"Bearer mock"})
+    assert response_users.status_code == 200
+    data = response_users.json()
+    assert len(data["data"]) == 1
+    assert data["data"][response.json()['data']['id']]["likes"][0]["username"] == "janedoe"
+    assert data["data"][response.json()['data']['id']]["likes"][1]["username"] == "pepito"
+    assert data["data"][response.json()['data']['id']]["retweets"][0]["username"] == "pepito"
+
+
+
    
