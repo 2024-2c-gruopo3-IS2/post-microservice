@@ -1,5 +1,6 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException, status
+import requests
 from sqlalchemy.orm import Session
 
 from .users import get_followed_users, get_profile_by_username
@@ -91,6 +92,7 @@ def get_feed_snaps(user_data: dict = Depends(get_user_from_token), db: Session =
     """
     token = user_data["token"]
     username = user_data["username"]
+    email = user_data["email"]
 
     followed_users = get_followed_users(token, username)
 
@@ -106,7 +108,26 @@ def get_feed_snaps(user_data: dict = Depends(get_user_from_token), db: Session =
 
     snaps = sorted(snaps, key=lambda x: x["created_at"], reverse=True)
 
-    print("\nsnaps\n", snaps)
+    response = requests.get(f"https://profile-microservice.onrender.com/profiles/verified-users")
+    verified_users = response.json()
+
+    print("email: ", email)
+    shared = snap_service.get_shared_snaps(email)
+    liked = snap_service.get_liked_snaps(email)
+    favourited = snap_service.get_favourite_snaps(email)
+
+    print("shared", [x["id"] for x in shared])
+    print("liked", [x["id"] for x in liked])
+    print("favourited", [x["id"] for x in favourited])
+    print("verified", verified_users)
+
+
+    for snap in snaps:
+        snap["is_shared"] = snap["_id"] in [x["id"] for x in shared]
+        snap["is_liked"] = snap["_id"] in [x["id"] for x in liked]
+        snap["is_favourited"] = snap["_id"] in [x["id"] for x in favourited]
+        snap["is_verified"] = snap["username"] in verified_users
+
 
     snaps = list({dic["_id"]: dic for dic in snaps}.values())
 

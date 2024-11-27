@@ -203,6 +203,7 @@ class SnapService:
         Get the snaps liked by user.
         """
         snaps_ids = self.snap_repository.get_all_snap_likes(user_email)
+        print("snaps_ids", snaps_ids)
         snaps = []
         for snaps_id in snaps_ids:
             snap = self.snap_repository.get_snap_by_id(snaps_id)

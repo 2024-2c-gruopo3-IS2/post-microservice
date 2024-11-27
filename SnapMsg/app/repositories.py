@@ -263,4 +263,3 @@ class SnapRepository:
             share["_id"] = str(share["_id"])
         return shares
 
-
